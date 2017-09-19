@@ -1,4 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
+<link rel="import" href="../kwc-style/typography.html">
 
 <!--
 `kwc-modal`
@@ -8,27 +10,262 @@ Wraps content into a modal/dialog overlay
 -->
 
 <dom-module id="kwc-modal">
-  <template>
-    <style>
-      :host {
-        display: block;
-      }
-    </style>
-    <h2>Hello [[prop1]]!</h2>
-  </template>
-
-  <script>
-    Polymer({
-
-      is: 'kwc-modal',
-
-      properties: {
-        prop1: {
-          type: String,
-          value: 'kwc-modal',
-        },
-      },
-
-    });
-  </script>
+    <template>
+        <style>
+            :host {
+                --color-light-grey: #f4f5f6;
+                --color-medium-grey: #a7aeb2;
+                --color-dark-grey: #999999;
+                --color-text: #253541;
+                --color-progress-bar: #9FD465;
+                --color-progress-bar-bg: #e5e5e5;
+                --border-radius-large: 6px;
+                --border-radius-medium: 3px;
+                display: block;
+            }
+            :host paper-dialog {
+                background-color: transparent;
+                margin: 0;
+            }
+            :host .fadeInUp {
+                animation-duration: 0.1s;
+                animation-name: fadeInUp;
+                animation-fill-mode: both;
+            }
+            :host #wrapper {
+                display: block;
+                color: var(--color-text);
+                border-radius: var(--border-radius-large);
+                font-family: 'Bariol', sans-serif;
+                margin: 0;
+                overflow: hidden;
+                padding: 0;
+                position: relative;
+                display: flex;
+                @apply --kano-modal-main;
+            }
+            :host .content {
+                flex: 1;
+                background-color: var(--color-light-grey);
+                box-sizing: border-box;
+                padding-left: 0;
+                padding-right: 0;
+                position: relative;
+                text-align: center;
+            }
+            :host .motif {
+                display: block;
+                height: 110px;
+                left: 0;
+                margin: 0 auto;
+                position: absolute;
+                right: 0;
+                top: 15px;
+                width: 110px;
+            }
+            :host .close-icon {
+                width: 20px;
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                cursor: pointer;
+                z-index: 10;
+                transition: transform 0.2s ease-in;
+            }
+            :host .close-icon:hover {
+                transform: scale(1.15);
+            }
+            .float-in {
+                animation: floatIn 180ms ease-out;
+            }
+            .pulse-up {
+                animation: pulseUp 140ms linear;
+            }
+            .pulse-down {
+                animation: pulseDown 100ms linear;
+            }
+            @keyframes floatIn {
+                0% {transform: scale(0.5);}
+                100% {transform: scale(1);}
+            }
+            @keyframes pulseUp {
+                0% {transform: scale(1);}
+                100% {transform: scale(1.15);}
+            }
+            @keyframes pulseDown {
+                0% {transform: scale(1.1);}
+                100% {transform: scale(1);}
+            }
+        </style>
+        <paper-dialog id="modal" on-iron-overlay-opened="_openAnimation" opened="{{opened}}" modal>
+            <div class="wrapper" id="wrapper">
+                <dom-if>
+                    <template is="dom-if" if="[[closable]]">
+                        <img class="close-icon"
+                            src="[[assetsPath]]/icons/modal-close-icon.svg"
+                            on-tap="_xTapped" />
+                    </template>
+                </dom-if>
+                <div class="content">
+                    <dom-if>
+                        <template is="dom-if" if="[[motif]]">
+                            <img id="image"
+                                 class="motif"
+                                 src="[[motif]]"/>
+                        </template>
+                    </dom-if>
+                    <slot></slot>
+                </div>
+            </div>
+        </paper-dialog>
+    </template>
 </dom-module>
+
+<script>
+    Polymer({
+        is: 'kwc-modal',
+        properties: {
+            /**
+             * Path for the image placed on the top end of modal
+             * @type {String}
+             */
+            motif: {
+                type: String,
+                value: null
+            },
+            /**
+             * Path to assets to be used by the modal.
+             * i.e: Icons, avatars, audios and graphics.
+             * @type {String}
+             */
+            assetsPath: {
+                type: String,
+                value: null
+            },
+            /**
+             * Flags if modal has been animated during previous transitions.
+             * @type {Boolean}
+             */
+            wasAnimated: {
+                type: Boolean,
+                value: false
+            },
+            /**
+             * Flags if modal shows an UI for closing it.
+             * @type {Boolean}
+             */
+            closable: {
+                type: Boolean,
+                value: true,
+                reflectToAttribute: true
+            },
+            /**
+             * Flags if modal is open.
+             * @type {Boolean}
+             */
+            opened: {
+                type: Boolean,
+                notify: true
+            }
+        },
+        attached () {
+            this._changeImage = this._changeImage.bind(this);
+        },
+        /**
+         * Animates modal opening.
+         */
+        _openAnimation () {
+            // TODO: Implement fallback if `animate` is not in `HTMLElement`
+            if ('animate' in HTMLElement.prototype) {
+                this.$.modal.animate([
+                    {transform: 'scale(0.5)'},
+                    {transform: 'scale(1)'}
+                ], {
+                    duration: 200,
+                    easing: 'ease-out'
+                });
+            }
+        },
+        /**
+         * Opens modal. This is a proxy to `paper-dialog` `open` method.
+         */
+        open () {
+            this.$.modal.open();
+        },
+        /**
+         * If client has support for `animate` api, perform closing animation
+         * and then closes by calling `paper-dialog` `close` method.
+         */
+        close () {
+            if ('animate' in HTMLElement.prototype) {
+                this.$.modal.animate([
+                    {transform: 'scale(1)'},
+                    {transform: 'scale(0.5)'}
+                ], {
+                    duration: 200,
+                    easing: 'ease-in'
+                }).onfinish = () => {
+                    this.$.modal.close();
+                };
+            } else {
+                this.$.modal.close();
+            }
+        },
+        /**
+         * Fired when user actively tap on the close icon.
+         *
+         * @event dismiss
+         */
+        /**
+         * Handles event triggered by tapping on the close icon.
+         */
+        _xTapped () {
+            this.close();
+            this.fire('dismiss');
+        },
+        /**
+         * Changes `motif` image and perform animations accordingly depending
+         * on if there was an image there before and if it was animated. If
+         * the motif is being swapped, it calls `_changeImage` as a callback
+         * for the transition animation.
+         * @param {String} url Path for the new `motif`
+         */
+        transitionImage (url) {
+            if (!url) {
+                return;
+            }
+            if (this.wasAnimated) {
+                this._resetClasses();
+            }
+            this.newImage = url;
+            this.wasAnimated = true;
+            // There is a motif image already, transition to new, otherwise float in
+            let image = Polymer.dom(this.root).querySelector('#image');
+            if (this.motif) {
+                image.classList.add('pulse-up');
+                image.addEventListener('animationend', this._changeImage);
+            } else {
+                image.classList.add('float-in');
+                this.motif = url;
+            }
+        },
+        /**
+         * Changes `motif` after "pulse-down" animation and removes listener.
+         */
+        _changeImage () {
+            let image = Polymer.dom(this.root).querySelector('#image');
+            image.classList.add('pulse-down');
+            this.motif = this.newImage;
+            image.removeEventListener('animationend', this._changeImage);
+        },
+        /**
+         * Resets transition animation classes.
+         */
+        _resetClasses () {
+            let image = Polymer.dom(this.root).querySelector('#image');
+            image.classList.remove('pulse-down');
+            image.classList.remove('pulse-up');
+            image.classList.remove('float-in');
+        }
+    });
+</script>

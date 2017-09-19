@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 
@@ -10,21 +10,155 @@
     <script src="../../web-component-tester/browser.js"></script>
 
     <link rel="import" href="../kwc-modal.html">
-  </head>
-  <body>
+</head>
+<body>
+    <test-fixture id="empty">
+        <template>
+            <kwc-modal></kwc-modal>
+        </template>
+    </test-fixture>
     <test-fixture id="basic">
-      <template>
-        <kwc-modal></kwc-modal>
-      </template>
+        <template>
+            <kwc-modal assets-path="../demo/demo-assets"
+                       motif="../demo/demo-assets/avatar/judoka-face.svg">
+                <div class="content">
+                    <h2>Example content for Kano Modal</h2>
+                </div>
+            </kwc-modal>
+        </template>
+    </test-fixture>
+    <test-fixture id="not-closable">
+        <template>
+            <kwc-modal assets-path="../demo/demo-assets"
+                       motif="../demo/demo-assets/avatar/judoka-face.svg"
+                       closable="false">
+                <div class="content">
+                    <h2>Example content for Kano Modal (not closable)</h2>
+                </div>
+            </kwc-modal>
+        </template>
     </test-fixture>
 
     <script>
-      suite('kwc-modal', function() {
-        test('instantiating the element works', function() {
-          var element = fixture('basic');
-          assert.equal(element.is, 'kwc-modal');
+        suite('Empty', () => {
+            test('instantiating the element works', () => {
+                var element = fixture('empty');
+                assert.equal(element.is, 'kwc-modal');
+            });
         });
-      });
+        suite('Basic', () => {
+            let element;
+            setup(() => {
+                element = fixture('basic');
+            })
+            test('instantiating the element works', () => {
+                assert.equal(element.is, 'kwc-modal');
+            });
+            test('opening modal changes `opened` state', (done) => {
+                element.set('opened', false);
+                element.open();
+                flush(() => {
+                    /** Wait for animation */
+                    setTimeout(() => {
+                        assert.equal(element.opened, true);
+                        done();
+                    }, 250);
+                });
+            });
+            test('closing modal changes `opened` state', (done) => {
+                element.set('opened', true);
+                element.close();
+                flush(() => {
+                    /** Wait for animation */
+                    setTimeout(() => {
+                        assert.equal(element.opened, false);
+                        done();
+                    }, 250);
+                });
+            });
+            test('closable by default', () => {
+                assert.equal(element.closable, true);
+            });
+            test('show close button if `closable`', (done) => {
+                element.set('closable', true);
+                flush(() => {
+                    let closeButton = Polymer.dom(element.root)
+                        .querySelector('.close-icon');
+                    assert.exists(closeButton);
+                    done();
+                });
+            });
+            test('tapping the close button will close modal', () => {
+                flush(() => {
+                    let closeButton = Polymer.dom(element.root)
+                        .querySelector('.close-icon');
+                    closeButton.click();
+                    assert.equal(element.opened, false);
+                });
+            });
+            test('tapping the close button will fire event', (done) => {
+                let eventCallback = () => {
+                    element.removeEventListener('dismiss', eventCallback);
+                    done();
+                };
+                element.addEventListener('dismiss', eventCallback);
+                flush(() => {
+                    let closeButton = Polymer.dom(element.root)
+                        .querySelector('.close-icon');
+                    closeButton.click();
+                });
+            });
+            /**
+            TODO: Rewrite `transitionImage` so mocha can test it. Right now
+            it won't trigger `animationend` event.
+            test('transitioning image will change the `motif`', (done) => {
+                let newMotif = '/test/motif.svg';
+                flush(() => {
+                    element.transitionImage(newMotif);
+                    setTimeout(() => {
+                        assert.equal(element.motif, newMotif);
+                        done();
+                    }, 250);
+                });
+            });
+            */
+            test('reset classes will remove animation classes', (done) => {
+                let classList = ['pulse-up', 'pulse-down', 'float-in'];
+                flush(() => {
+                    let image = Polymer.dom(element.root).querySelector('#image');
+                    assert.exists(image);
+                    /** Add classes */
+                    classList.forEach((className) => {
+                        image.classList.add(className);
+                    });
+                    /** Check if classes were added */
+                    classList.forEach((className) => {
+                        assert.equal(image.classList.contains(className), true);
+                    });
+                    /** Reset classes */
+                    element._resetClasses();
+                    /** Check if classes were removed */
+                    classList.forEach((className) => {
+                        assert.equal(image.classList.contains(className), false);
+                    });
+                    done();
+                });
+            });
+        });
+        suite('Not closable', () => {
+            let element;
+            setup(() => {
+                element = fixture('not-closable');
+            });
+            test('hide close button if not `closable`', () => {
+                element.set('closable', false);
+                flush(() => {
+                    let closeButton = Polymer.dom(element.root)
+                        .querySelector('.close-icon');
+                    assert.notExists(closeButton);
+                });
+            });
+        })
     </script>
-  </body>
+</body>
 </html>
