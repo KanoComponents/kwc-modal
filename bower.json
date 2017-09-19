@@ -5,7 +5,7 @@
     "dependencies": {
         "polymer": "Polymer/polymer#^1.9.0",
         "paper-dialog": "^2.0.0",
-        "kwc-style": "git@github.com:KanoComponents/kwc-style.git#development"
+        "kwc-style": "git@github.com:KanoComponents/kwc-style.git"
     },
     "devDependencies": {
         "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
