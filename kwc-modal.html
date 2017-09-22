@@ -102,7 +102,7 @@ Wraps content into a modal/dialog overlay
                 <dom-if>
                     <template is="dom-if" if="[[closable]]">
                         <img class="close-icon"
-                            src="[[assetsPath]]/icons/modal-close-icon.svg"
+                            src="[[_modalCloseIcon]]"
                             on-tap="_xTapped" />
                     </template>
                 </dom-if>
@@ -141,6 +141,10 @@ Wraps content into a modal/dialog overlay
             assetsPath: {
                 type: String,
                 value: null
+            },
+            _modalCloseIcon: {
+                type: String,
+                computed: '_computeCloseIcon(assetsPath)'
             },
             /**
              * Flags if modal has been animated during previous transitions.
@@ -184,6 +188,13 @@ Wraps content into a modal/dialog overlay
                     duration: 200,
                     easing: 'ease-out'
                 });
+            }
+        },
+        _computeCloseIcon(assetsPath) {
+            if (assetsPath) {
+                return `${assetsPath}/icons/modal-close-icon.svg`
+            } else {
+                return "data:image/svg+xml,%3Csvg width='45' height='45' viewBox='0 0 45 45' xmlns='http://www.w3.org/2000/svg'%3E%3Ctitle%3EGroup%3C/title%3E%3Cg transform='translate(2 2)' stroke='%23C2C2C2' stroke-width='4' fill='none' fill-rule='evenodd'%3E%3Ccircle cx='20.5' cy='20.5' r='20.5'/%3E%3Cpath d='M14 14l13 13m0-13L14 27' stroke-linecap='round' stroke-linejoin='bevel'/%3E%3C/g%3E%3C/svg%3E"
             }
         },
         /**
