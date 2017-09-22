@@ -2,6 +2,15 @@
 
 Wraps content into a modal/dialog overlay
 
+## Properties
+ * assetsPath: Path to assets to be used by the modal.
+ * closable: Flags if modal shows an UI for closing it.
+ * motif: Path for the image placed on the top end of modal.
+ * opened: Flags if modal is open.
+ * wasAnimated: Flags if modal has been animated during previous transitions.
+
+ If `assetsPath` is given the modal will look for a close modal icon at `${assetsPath}/icons/close-modal-icon.svg` so you need to provide that file.
+
 ## Installation
 Clone this repository.
 Run `bower i`
