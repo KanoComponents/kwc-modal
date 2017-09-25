@@ -99,21 +99,17 @@ Wraps content into a modal/dialog overlay
         </style>
         <paper-dialog id="modal" on-iron-overlay-opened="_openAnimation" opened="{{opened}}" modal>
             <div class="wrapper" id="wrapper">
-                <dom-if>
-                    <template is="dom-if" if="[[closable]]">
-                        <img class="close-icon"
-                            src="[[_modalCloseIcon]]"
-                            on-tap="_xTapped" />
-                    </template>
-                </dom-if>
+                <template is="dom-if" if="[[closable]]">
+                    <img class="close-icon"
+                        src="[[_modalCloseIcon]]"
+                        on-tap="_xTapped" />
+                </template>
                 <div class="content">
-                    <dom-if>
-                        <template is="dom-if" if="[[motif]]">
-                            <img id="image"
-                                 class="motif"
-                                 src="[[motif]]"/>
+                    <template is="dom-if" if="[[motif]]">
+                        <img id="image"
+                                class="motif"
+                                src="[[motif]]"/>
                         </template>
-                    </dom-if>
                     <slot></slot>
                 </div>
             </div>
