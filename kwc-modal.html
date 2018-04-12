@@ -4,6 +4,9 @@
 
 <!--
 `kwc-modal`
+
+This element is deprecated, please use kwc-dialog with icon header instead
+
 Wraps content into a modal/dialog overlay
 
 @demo demo/index.html
@@ -118,6 +121,7 @@ Wraps content into a modal/dialog overlay
 </dom-module>
 
 <script>
+    console.warn('The `kwc-modal` element is deprecated. Visit https://github.com/KanoComponents/kwc-dialog to see how to migrate to kwc-dialog');
     Polymer({
         is: 'kwc-modal',
         properties: {
